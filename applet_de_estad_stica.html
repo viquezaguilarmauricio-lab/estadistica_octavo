@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applet Estadístico: Situaciones de la Vida Real</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #f3f4f6;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg: #f8fafc;
+            --white: #ffffff;
+            --border: #e5e7eb;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-dark);
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background: var(--white);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: var(--secondary);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        /* Layout Main */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+        }
+
+        .description {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            background: var(--secondary);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        /* Form */
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="number"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-add {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-add:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-clear {
+            background: var(--danger);
+            color: var(--white);
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* Nuevos Estilos: Validaciones, Tablas y Botones Secundarios */
+        .error-msg {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            font-weight: bold;
+            min-height: 20px;
+        }
+
+        .freq-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .freq-table th {
+            background: var(--primary);
+            color: var(--white);
+            padding: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .freq-table td {
+            padding: 8px;
+            border: 1px solid var(--border);
+            background: var(--white);
+        }
+
+        .btn-secondary {
+            background: var(--text-light);
+            color: var(--white);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--text-dark);
+        }
+
+        /* Data List */
+        .data-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+            background: var(--secondary);
+            border-radius: 8px;
+        }
+
+        .data-badge {
+            background: var(--white);
+            border: 1px solid var(--border);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .delete-btn {
+            color: var(--danger);
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Charts */
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .chart-btn {
+            background: var(--secondary);
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+        }
+        .chart-btn.active {
+            background: var(--text-dark);
+            color: var(--white);
+        }
+
+        .canvas-container {
+            width: 100%;
+            height: 350px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            position: relative;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Stats Table */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: var(--secondary);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Análisis de Datos: Situaciones Estudiantiles</h1>
+        <p>Recopile información, analice gráficos y genere sus conclusiones.</p>
+    </header>
+
+    <div class="tabs" id="tabs-container">
+        <!-- Tabs genéricas generadas por JS -->
+    </div>
+
+    <div class="main-content">
+        <!-- Panel Izquierdo: Entrada de Datos -->
+        <div class="card">
+            <h2 id="sit-title">Título de la situación</h2>
+            <div class="description" id="sit-desc">
+                Descripción
+            </div>
+            
+            <form id="data-form">
+                <label for="data-input" style="display:block; margin-bottom:5px; font-weight:bold;">Ingrese el dato:</label>
+                <div class="input-group" style="margin-bottom: 5px;">
+                    <input type="number" id="data-input" step="any" required placeholder="Ej. 15">
+                    <button type="submit" class="btn-add">Agregar</button>
+                </div>
+                <div id="error-message" class="error-msg"></div>
+            </form>
+
+            <h3 style="font-size: 1rem; margin-bottom:10px; margin-top:15px;">Datos recolectados (<span id="data-count">0</span>)</h3>
+            <div class="data-list" id="data-list">
+                <!-- Data badges go here -->
+            </div>
+            <button class="btn-clear" id="btn-clear">Limpiar todos los datos</button>
+        </div>
+
+        <!-- Panel Derecho: Gráficos y Estadísticas -->
+        <div class="card">
+            <h2>Tabla de Frecuencias</h2>
+            <div id="freq-table-container" style="overflow-x: auto; margin-bottom: 25px;">
+                <!-- Table goes here -->
+            </div>
+
+            <h2>Visualización Gráfica</h2>
+            
+            <div class="chart-controls">
+                <button class="chart-btn active" data-type="bar">📊 Barras</button>
+                <button class="chart-btn" data-type="line">📈 Líneas</button>
+                <button class="chart-btn" data-type="dot">🔴 Puntos</button>
+                <button class="chart-btn" data-type="pie">🥧 Circular</button>
+            </div>
+
+            <div class="canvas-container" id="canvas-container">
+                <canvas id="chartCanvas"></canvas>
+            </div>
+
+            <hr style="margin: 25px 0; border: none; border-top: 2px solid var(--border);">
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Medidas Estadísticas</h2>
+                <button id="btn-toggle-stats" class="btn-secondary">Mostrar Medidas</button>
+            </div>
+            <div class="stats-grid" id="stats-container" style="display: none;">
+                <!-- Stats go here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- ESTADO DE LA APLICACIÓN ---
+    const situations = [
+        {
+            id: 1,
+            tab: "Sit. 1: Mensajes",
+            title: "¿Acumuladores digitales?",
+            desc: "Existe el mito de que acumulamos cientos de mensajes de WhatsApp sin leer. Indique cuántos mensajes o notificaciones tiene pendientes. Analizaremos si la sección acumula mensajes o responde rápido.",
+            data: [],
+            unit: "mensajes",
+            validate: (v) => v >= 0 ? null : "El número de mensajes no puede ser negativo."
+        },
+        {
+            id: 2,
+            tab: "Sit. 2: Video Institucional",
+            title: "Duración de videos (Atención)",
+            desc: "Se abrirá un TikTok/Instagram institucional. Indique en qué momento (en segundos) perdería el interés en un video informativo. Determinaremos la duración máxima recomendable.",
+            data: [],
+            unit: "segundos",
+            validate: (v) => v >= 0 ? null : "El tiempo no puede ser un valor negativo."
+        },
+        {
+            id: 3,
+            tab: "Sit. 3: Recreos Escalonados",
+            title: "Filas en la Soda",
+            desc: "El Gobierno Estudiantil propone recreos escalonados argumentando que se pierde mucho tiempo haciendo fila. Indique el tiempo (en minutos) que normalmente espera para ser atendido.",
+            data: [],
+            unit: "minutos",
+            validate: (v) => v >= 0 ? null : "El tiempo de espera no puede ser negativo."
+        },
+        {
+            id: 4,
+            tab: "Sit. 4: Horas de Sueño",
+            title: "Descanso y Privación de Sueño",
+            desc: "Se afirma que llegan con sueño. La recomendación es dormir de 8 a 9 horas. Indique cuántas horas durmió la noche anterior para verificar si existe privación de sueño.",
+            data: [],
+            unit: "horas",
+            validate: (v) => (v >= 0 && v <= 24) ? null : "Las horas de sueño deben ser un valor real entre 0 y 24."
+        }
+    ];
+
+    let currentSituationIndex = 0;
+    let currentChartType = 'bar';
+    let statsVisible = false;
+    let chartColors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#06b6d4', '#64748b'];
+
+    // --- ELEMENTOS DEL DOM ---
+    const tabsContainer = document.getElementById('tabs-container');
+    const sitTitle = document.getElementById('sit-title');
+    const sitDesc = document.getElementById('sit-desc');
+    const dataForm = document.getElementById('data-form');
+    const dataInput = document.getElementById('data-input');
+    const errorMsg = document.getElementById('error-message');
+    const dataList = document.getElementById('data-list');
+    const dataCount = document.getElementById('data-count');
+    const btnClear = document.getElementById('btn-clear');
+    const chartBtns = document.querySelectorAll('.chart-btn');
+    const canvas = document.getElementById('chartCanvas');
+    const ctx = canvas.getContext('2d');
+    const statsContainer = document.getElementById('stats-container');
+    const freqTableContainer = document.getElementById('freq-table-container');
+    const btnToggleStats = document.getElementById('btn-toggle-stats');
+
+    // --- INICIALIZACIÓN ---
+    function init() {
+        buildTabs();
+        loadSituation();
+        window.addEventListener('resize', drawChart);
+        
+        dataForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const val = parseFloat(dataInput.value);
+            errorMsg.innerText = '';
+
+            if (!isNaN(val)) {
+                const sit = situations[currentSituationIndex];
+                const validationError = sit.validate(val);
+                
+                if (validationError) {
+                    errorMsg.innerText = validationError;
+                    return;
+                }
+
+                sit.data.push(val);
+                dataInput.value = '';
+                updateUI();
+            }
+        });
+
+        btnClear.addEventListener('click', () => {
+            situations[currentSituationIndex].data = [];
+            errorMsg.innerText = '';
+            updateUI();
+        });
+
+        chartBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                chartBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentChartType = btn.dataset.type;
+                drawChart();
+            });
+        });
+
+        btnToggleStats.addEventListener('click', () => {
+            statsVisible = !statsVisible;
+            if (statsVisible) {
+                statsContainer.style.display = 'grid';
+                btnToggleStats.innerText = 'Ocultar Medidas';
+            } else {
+                statsContainer.style.display = 'none';
+                btnToggleStats.innerText = 'Mostrar Medidas';
+            }
+        });
+    }
+
+    function buildTabs() {
+        tabsContainer.innerHTML = '';
+        situations.forEach((sit, index) => {
+            const btn = document.createElement('button');
+            btn.className = `tab-btn ${index === currentSituationIndex ? 'active' : ''}`;
+            btn.innerText = sit.tab;
+            btn.addEventListener('click', () => {
+                currentSituationIndex = index;
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                loadSituation();
+            });
+            tabsContainer.appendChild(btn);
+        });
+    }
+
+    function loadSituation() {
+        const sit = situations[currentSituationIndex];
+        sitTitle.innerText = sit.title;
+        sitDesc.innerText = sit.desc;
+        dataInput.placeholder = `Ej. en ${sit.unit}`;
+        errorMsg.innerText = '';
+        updateUI();
+    }
+
+    function updateUI() {
+        const sit = situations[currentSituationIndex];
+        
+        // Render List
+        dataList.innerHTML = '';
+        sit.data.forEach((val, index) => {
+            const badge = document.createElement('div');
+            badge.className = 'data-badge';
+            badge.innerHTML = `${val} <span class="delete-btn" onclick="deleteData(${index})">×</span>`;
+            dataList.appendChild(badge);
+        });
+        dataCount.innerText = sit.data.length;
+
+        // Render Table & Stats
+        renderTable(sit.data);
+        renderStats(sit.data);
+
+        // Draw Chart
+        drawChart();
+    }
+
+    window.deleteData = function(index) {
+        situations[currentSituationIndex].data.splice(index, 1);
+        updateUI();
+    }
+
+    // --- TABLA DE FRECUENCIAS ---
+    function renderTable(data) {
+        if (data.length === 0) {
+            freqTableContainer.innerHTML = '<p style="text-align:center; color:#6b7280; padding: 10px;">Agregue datos para generar la tabla de frecuencias.</p>';
+            return;
+        }
+
+        const bins = binData(data);
+        const total = data.length;
+        
+        let html = `
+            <table class="freq-table">
+                <thead>
+                    <tr>
+                        <th>Valor / Intervalo</th>
+                        <th>Frecuencia Absoluta (f)</th>
+                        <th>Frecuencia Porcentual (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        bins.forEach(b => {
+            const percent = ((b.count / total) * 100).toFixed(1);
+            html += `<tr><td>${b.label}</td><td>${b.count}</td><td>${percent}%</td></tr>`;
+        });
+        
+        html += `
+                <tr>
+                    <th style="text-align: right;">Total:</th>
+                    <th>${total}</th>
+                    <th>100%</th>
+                </tr>
+                </tbody>
+            </table>
+        `;
+        
+        freqTableContainer.innerHTML = html;
+    }
+
+    // --- CÁLCULO ESTADÍSTICO ---
+    function renderStats(data) {
+        statsContainer.innerHTML = '';
+        if (data.length === 0) {
+            statsContainer.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#6b7280;">Agregue datos para ver estadísticas.</p>';
+            return;
+        }
+
+        const sorted = [...data].sort((a, b) => a - b);
+        const n = sorted.length;
+        const sum = sorted.reduce((a, b) => a + b, 0);
+        const mean = sum / n;
+        
+        let median;
+        if (n % 2 === 0) median = (sorted[n/2 - 1] + sorted[n/2]) / 2;
+        else median = sorted[Math.floor(n/2)];
+
+        const freq = {};
+        sorted.forEach(d => freq[d] = (freq[d] || 0) + 1);
+        let maxFreq = 0;
+        let modes = [];
+        for (let k in freq) {
+            if (freq[k] > maxFreq) { maxFreq = freq[k]; modes = [k]; }
+            else if (freq[k] === maxFreq) { modes.push(k); }
+        }
+        let modeStr = modes.join(', ');
+        if (modes.length === Object.keys(freq).length && modes.length > 1) modeStr = "Amodal";
+
+        const min = sorted[0];
+        const max = sorted[n-1];
+        const range = max - min;
+
+        const statBoxes = [
+            { label: 'Mínimo', val: min },
+            { label: 'Máximo', val: max },
+            { label: 'Recorrido', val: formatNumber(range) },
+            { label: 'Media', val: formatNumber(mean) },
+            { label: 'Mediana', val: formatNumber(median) },
+            { label: 'Moda', val: modeStr }
+        ];
+
+        statBoxes.forEach(stat => {
+            const div = document.createElement('div');
+            div.className = 'stat-box';
+            div.innerHTML = `
+                <div class="stat-label">${stat.label}</div>
+                <div class="stat-value">${stat.val}</div>
+            `;
+            statsContainer.appendChild(div);
+        });
+    }
+
+    function formatNumber(num) {
+        return Number.isInteger(Number(num)) ? num : Number(num).toFixed(2);
+    }
+
+    // --- ALGORITMO DE AGRUPACIÓN (BINNING) ---
+    function binData(data) {
+        if(data.length === 0) return [];
+        let min = Math.min(...data);
+        let max = Math.max(...data);
+        
+        let isDiscrete = data.every(d => Number.isInteger(d));
+        // Si hay pocos valores únicos, mostramos valores individuales
+        let uniqueVals = new Set(data).size;
+        
+        if (isDiscrete && uniqueVals <= 12) {
+            let freqs = {};
+            // Agrupar por valor exacto, ordenado
+            let sortedUnique = Array.from(new Set(data)).sort((a,b)=>a-b);
+            sortedUnique.forEach(val => freqs[val] = 0);
+            data.forEach(d => freqs[d]++);
+            return sortedUnique.map(k => ({ label: String(k), count: freqs[k] }));
+        }
+
+        // Si hay mucha dispersión o continuos, crear intervalos (bins)
+        let binCount = Math.min(uniqueVals, 7);
+        if(binCount < 3 && data.length >= 3) binCount = 3;
+        
+        let range = max - min;
+        if (range === 0) return [{ label: String(min), count: data.length }];
+
+        let binWidth = range / binCount;
+        let bins = [];
+        for(let i=0; i<binCount; i++) {
+            let bMin = min + i*binWidth;
+            let bMax = min + (i+1)*binWidth;
+            if (i === binCount - 1) bMax += 0.01; // Inclusivo el último
+            
+            let label = `[${formatNumber(bMin)} - ${formatNumber(bMax)})`;
+            if (i === binCount - 1) label = `[${formatNumber(bMin)} - ${formatNumber(bMax - 0.01)}]`;
+            
+            bins.push({
+                min: bMin,
+                max: bMax,
+                label: label,
+                count: 0
+            });
+        }
+        
+        data.forEach(d => {
+            for(let b of bins) {
+                if(d >= b.min && d < b.max) {
+                    b.count++;
+                    break;
+                }
+            }
+        });
+        
+        return bins;
+    }
+
+    // --- LÓGICA DE DIBUJO EN CANVAS ---
+    function drawChart() {
+        const container = canvas.parentElement;
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const rawData = situations[currentSituationIndex].data;
+        if (rawData.length === 0) {
+            ctx.fillStyle = "#9ca3af";
+            ctx.font = "16px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("No hay datos suficientes para graficar", canvas.width/2, canvas.height/2);
+            return;
+        }
+
+        const bins = binData(rawData);
+        
+        if (currentChartType === 'bar') drawBarChart(bins);
+        else if (currentChartType === 'line') drawLineChart(bins);
+        else if (currentChartType === 'dot') drawDotPlot(bins);
+        else if (currentChartType === 'pie') drawPieChart(bins);
+    }
+
+    // Dibuja los títulos de los Ejes X e Y
+    function drawAxesLabels(padding) {
+        const sit = situations[currentSituationIndex];
+        
+        ctx.fillStyle = "#4b5563";
+        ctx.font = "bold 14px sans-serif";
+        ctx.textAlign = "center";
+        
+        // Etiqueta Eje X (Unidad de medida)
+        const unitCapitalized = sit.unit.charAt(0).toUpperCase() + sit.unit.slice(1);
+        ctx.fillText(unitCapitalized, canvas.width / 2, canvas.height - 10);
+        
+        // Etiqueta Eje Y (Frecuencia rotada)
+        ctx.save();
+        ctx.translate(15, canvas.height / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText("Frecuencia", 0, 0);
+        ctx.restore();
+    }
+
+    function drawBarChart(bins) {
+        const padding = 60;
+        const chartWidth = canvas.width - padding * 2;
+        const chartHeight = canvas.height - padding * 2;
+        const maxCount = Math.max(...bins.map(b => b.count));
+        
+        // Ejes
+        ctx.beginPath();
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, canvas.height - padding);
+        ctx.lineTo(canvas.width - padding, canvas.height - padding);
+        ctx.strokeStyle = "#9ca3af";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        drawAxesLabels(padding);
+
+        const barWidth = chartWidth / bins.length;
+        
+        bins.forEach((bin, i) => {
+            const barHeight = (bin.count / (maxCount || 1)) * chartHeight;
+            const x = padding + i * barWidth + (barWidth * 0.1);
+            const y = canvas.height - padding - barHeight;
+            const w = barWidth * 0.8;
+
+            // Dibujar barra
+            ctx.fillStyle = chartColors[i % chartColors.length];
+            ctx.fillRect(x, y, w, barHeight);
+
+            // Texto X
+            ctx.fillStyle = "#4b5563";
+            ctx.font = "12px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(bin.label, x + w/2, canvas.height - padding + 20);
+
+            // Texto Valor
+            if (bin.count > 0) {
+                ctx.fillStyle = "#1f2937";
+                ctx.font = "bold 12px sans-serif";
+                ctx.fillText(bin.count, x + w/2, y - 5);
+            }
+        });
+    }
+
+    function drawLineChart(bins) {
+        const padding = 60;
+        const chartWidth = canvas.width - padding * 2;
+        const chartHeight = canvas.height - padding * 2;
+        const maxCount = Math.max(...bins.map(b => b.count));
+        
+        // Ejes
+        ctx.beginPath();
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, canvas.height - padding);
+        ctx.lineTo(canvas.width - padding, canvas.height - padding);
+        ctx.strokeStyle = "#9ca3af";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        drawAxesLabels(padding);
+
+        const stepX = chartWidth / bins.length;
+        
+        // Dibujar las líneas conectando los puntos
+        ctx.beginPath();
+        ctx.strokeStyle = chartColors[0];
+        ctx.lineWidth = 3;
+        
+        bins.forEach((bin, i) => {
+            const x = padding + i * stepX + stepX / 2;
+            const y = canvas.height - padding - ((bin.count / (maxCount || 1)) * chartHeight);
+            
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        // Dibujar los puntos y textos
+        bins.forEach((bin, i) => {
+            const x = padding + i * stepX + stepX / 2;
+            const y = canvas.height - padding - ((bin.count / (maxCount || 1)) * chartHeight);
+            
+            // Punto
+            ctx.beginPath();
+            ctx.fillStyle = chartColors[1];
+            ctx.arc(x, y, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Texto X
+            ctx.fillStyle = "#4b5563";
+            ctx.font = "12px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(bin.label, x, canvas.height - padding + 20);
+
+            // Texto Valor
+            if (bin.count > 0) {
+                ctx.fillStyle = "#1f2937";
+                ctx.font = "bold 12px sans-serif";
+                ctx.fillText(bin.count, x, y - 12);
+            }
+        });
+    }
+
+    function drawDotPlot(bins) {
+        const padding = 60;
+        const chartWidth = canvas.width - padding * 2;
+        const chartHeight = canvas.height - padding * 2;
+        const maxCount = Math.max(...bins.map(b => b.count));
+        
+        // Ejes (X e Y)
+        ctx.beginPath();
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, canvas.height - padding);
+        ctx.lineTo(canvas.width - padding, canvas.height - padding);
+        ctx.strokeStyle = "#9ca3af";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        drawAxesLabels(padding);
+
+        const colWidth = chartWidth / bins.length;
+        
+        // Calcular radio dinámico para que no se salgan del canvas
+        let radius = Math.min(12, (chartHeight / (maxCount || 1)) / 2.5);
+        if (radius < 2) radius = 2;
+
+        bins.forEach((bin, i) => {
+            const x = padding + i * colWidth + colWidth / 2;
+            
+            // Texto X
+            ctx.fillStyle = "#4b5563";
+            ctx.font = "12px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(bin.label, x, canvas.height - padding + 20);
+
+            // Dibujar puntos
+            ctx.fillStyle = chartColors[0];
+            for (let j = 0; j < bin.count; j++) {
+                const y = canvas.height - padding - radius - (j * radius * 2.5) - 5;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        });
+    }
+
+    function drawPieChart(bins) {
+        const padding = 40;
+        const cx = (canvas.width - 150) / 2; // Desplazar centro para dejar espacio a leyenda
+        const cy = canvas.height / 2;
+        const radius = Math.min(cx, cy) - padding;
+        const total = bins.reduce((acc, b) => acc + b.count, 0);
+        
+        let startAngle = 0;
+
+        bins.forEach((bin, i) => {
+            if (bin.count === 0) return;
+            const sliceAngle = (bin.count / total) * 2 * Math.PI;
+            
+            // Slice
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.arc(cx, cy, radius, startAngle, startAngle + sliceAngle);
+            ctx.closePath();
+            ctx.fillStyle = chartColors[i % chartColors.length];
+            ctx.fill();
+
+            startAngle += sliceAngle;
+        });
+
+        // Leyenda
+        const legendX = cx + radius + 30;
+        let legendY = cy - (bins.length * 10) / 2;
+        
+        bins.forEach((bin, i) => {
+            if (bin.count === 0) return;
+            
+            // Cuadrito de color
+            ctx.fillStyle = chartColors[i % chartColors.length];
+            ctx.fillRect(legendX, legendY, 15, 15);
+            
+            // Texto
+            ctx.fillStyle = "#1f2937";
+            ctx.font = "12px sans-serif";
+            ctx.textAlign = "left";
+            const percent = ((bin.count / total) * 100).toFixed(1);
+            ctx.fillText(`${bin.label} (${percent}%)`, legendX + 25, legendY + 12);
+            
+            legendY += 25;
+        });
+    }
+
+    // Inicializar app
+    window.onload = init;
+
+</script>
+</body>
+</html>
